@@ -1,0 +1,8 @@
+.jumbotron {
+  min-height: 300px;
+  padding-top: 100px;
+  background-image: url("./img/sunrise.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: whitesmoke;
+}
