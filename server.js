@@ -1,6 +1,6 @@
 const express = require("express");
 const path = require("path");
-
+require('dotenv').config()
 
 ////////////////////////////
 var logger = require("morgan");
@@ -14,7 +14,7 @@ var axios = require("axios");
 // Require all models
 // var db = require("./models");
 
-var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/googlebooks";
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/crowdsource";
 mongoose.connect(
   MONGODB_URI,
   {
@@ -153,6 +153,60 @@ app.delete("/api/books/:id", function (req, res) {
   .then(dbModel => res.json(dbModel))
   .catch(err => res.status(422).json(err));
 });
+
+
+app.get("/api/locations", function (req, res) {
+  // Grab every document in the Articles collection
+  db.Location.find({})
+    .then(function (dbLocation) {
+      // If we were able to successfully find Articles, send them back to the client
+      res.json(dbLocation);
+    })
+    .catch(function (err) {
+      // If an error occurred, send it to the client
+      res.json(err);
+    });
+});
+
+
+
+app.post("/searchlocations/:query", function (req, res) {
+  const query = req.params.query;
+  const body = req.body;
+  // console.log(req.params.query)
+  const access_token = process.env.access_token
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${access_token}`
+  axios.get(url).then(function (response) {
+    // console.log(response.data.features)
+    // console.log(response.data.features[0])
+    // console.log(response.data.features[0].place_name)
+    // console.log(response.data.features[0].geometry.coordinates)\
+    // console.log(body)
+    const result = {};
+    result.address = response.data.features[0].place_name;
+    result.longitude = response.data.features[0].geometry.coordinates[0];
+    result.latitude = response.data.features[0].geometry.coordinates[1];
+    result.name = body.name;
+    result.message = body.message;
+
+      // console.log(result)
+
+      db.Location.create(result)
+        .then(function (dbLocation) {
+          // View the added result in the console
+          console.log(dbLocation);
+        })
+        .catch(function (err) {
+          // If an error occurred, log it
+          console.log(err);
+        });
+    
+
+  })
+});
+
+
+
 
 app.get("*", function (req, res) {
   res.sendFile(path.join(__dirname, "./client/build/index.html"));

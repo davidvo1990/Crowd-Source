@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Search from "./components/Pages/Search";
 import Saved from "./components/Pages/Saved";
-// import Map from "./components/Map";
+import Inputdata from "./components/Pages/Inputdata";
 import Nav from "./components/Nav";
 function App() {
   return (
@@ -12,7 +12,7 @@ function App() {
         <Switch>
           <Route exact path="/" component={Search} />
           <Route exact path="/saved" component={Saved} />
-          {/* <Route exact path="/map" component={Map} /> */}
+          <Route exact path="/inputdata" component={Inputdata} />
         </Switch>
       </div>
     </Router>

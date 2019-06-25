@@ -24,4 +24,11 @@ export default {
   deleteBook: function(id) {
     return axios.delete("/api/books/" + id);
   },
+
+  searchLocations:function(query, user){
+    return axios.post("/searchlocations/"+query, user);
+  },
+  getLocations: function() {
+    return axios.get("/api/locations/");
+  },
 };

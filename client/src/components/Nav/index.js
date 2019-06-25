@@ -24,6 +24,9 @@ function Nav() {
             <a className="nav-link" href="/saved">Saved Books</a>
           </li>
           <li className="nav-item">
+            <a className="nav-link" href="/inputdata">Input Data</a>
+          </li>
+          <li className="nav-item">
             <a className="nav-link" href="map.html">Map</a>
           </li>
         </ul>
