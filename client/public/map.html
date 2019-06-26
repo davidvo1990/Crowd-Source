@@ -3,10 +3,11 @@
 
 <head>
     <meta charset='utf-8' />
-    <title>Display a map</title>
+    <title>Display driving directions</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css' rel='stylesheet' />
+
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -19,7 +20,6 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
-
 
     <style>
         /* Display a map */
@@ -36,19 +36,19 @@
             height: 600px;
         }
 
-        /* Create a draggable Marker */
-        .coordinates {
-            background: rgba(0, 0, 0, 0.5);
-            color: #fff;
-            /* position: absolute; */
-            /* bottom: 40px; */
-            /* left: 10px; */
-            padding: 5px 10px;
-            margin: 0;
-            font-size: 11px;
-            line-height: 18px;
-            border-radius: 3px;
-            display: none;
+        /* Display custom marker */
+        .marker {
+            display: block;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        /* Popup when click */
+        .mapboxgl-popup {
+            max-width: 400px;
+            font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
         }
 
         /* Get coordinates of the mouse pointer */
@@ -65,20 +65,6 @@
             color: #222;
             background: #fff;
             margin-right: 0px;
-        }
-
-        /* Display a popup on hover */
-        .mapboxgl-popup {
-            max-width: 400px;
-            font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-        }
-
-        .marker {
-            display: block;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            padding: 0;
         }
 
         /* Place the geocoder input outside the map */
@@ -99,9 +85,18 @@
             display: none;
         }
     </style>
+
 </head>
 
 <body>
+
+    <script
+        src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.0.0/mapbox-gl-directions.js'></script>
+    <link rel='stylesheet'
+        href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.0.0/mapbox-gl-directions.css'
+        type='text/css' />
+
+
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="/">Google Books Search</a>
@@ -119,67 +114,79 @@
                     <a class="nav-link" href="/saved">Saved Books</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="/inputdata">Input Data</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="map.html">Map</a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <div class="map">
-        <!-- Display a map -->
-        <div id='map'></div>
+    <div id='map'></div>
 
-        <!-- Create a draggable Marker -->
-        <pre id='coordinates' class='coordinates'></pre>
+    <!-- Get coordinates of the mouse pointer -->
+    <pre id='info'></pre>
 
-        <!-- Get coordinates of the mouse pointer -->
-        <pre id='info'></pre>
-
-        <!-- Place the geocoder input outside the map -->
-        <div id='geocoder' class='geocoder'></div>
-
-    </div>
-    <!-- Display driving directions -->
-    <script
-        src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.0.0/mapbox-gl-directions.js'></script>
-    <link rel='stylesheet'
-        href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.0.0/mapbox-gl-directions.css'
-        type='text/css' />
-    <!-- Place the geocoder input outside the map -->
-    <script
-        src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.3.0/mapbox-gl-geocoder.min.js'></script>
-    <link rel='stylesheet'
-        href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.3.0/mapbox-gl-geocoder.css'
-        type='text/css' />
 
     <script>
-        // Display a map
         mapboxgl.accessToken = 'pk.eyJ1IjoiZGF2aWR2bzE5OTAiLCJhIjoiY2p4MmsyOXJsMDAxYTQ4cGg3cHMwcTZkMCJ9.mHHhKy1QIfmGF_TC88vSUg';
-        if (!mapboxgl.supported()) {
-            alert('Your browser does not support Mapbox GL');
-        } else {
-            var map = new mapboxgl.Map({
-                container: 'map', // container id
-                style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
-                center: [-93.25, 44.98], // starting position [lng, lat]
-                zoom: 9 // starting zoom
-            });
-        }
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [-93.258133, 44.986656],
+            zoom: 13
+        });
 
-        // Create a draggable Marker
-        var marker = new mapboxgl.Marker({
-            draggable: true
-        })
-            .setLngLat([-93.25, 44.98])
-            .addTo(map);
 
-        function onDragEnd() {
-            var lngLat = marker.getLngLat();
-            coordinates.style.display = 'block';
-            coordinates.innerHTML = 'Longitude: ' + lngLat.lng + '<br />Latitude: ' + lngLat.lat;
-        }
+        var geojson = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "message": "Foo",
+                        "iconSize": [60, 60]
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -93.258462890625,
+                            44.986695711685304
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "message": "Bar",
+                        "iconSize": [50, 50]
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -93.2588203125,
+                            44.98689158092897
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "message": "Baz",
+                        "iconSize": [40, 40]
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -93.25823632812499,
+                            44.98651823530889
+                        ]
+                    }
+                }
+            ]
+        };
 
-        marker.on('dragend', onDragEnd);
 
         // Get coordinates of the mouse pointer
         map.on('mousemove', function (e) {
@@ -195,81 +202,45 @@
         // View a fullscreen map
         map.addControl(new mapboxgl.FullscreenControl());
 
+        // Add zoom and rotation controls to the map.
+        map.addControl(new mapboxgl.NavigationControl());
+
         // Locate the user
-        map.addControl(new mapboxgl.GeolocateControl({
+        // Add geolocate control to the map.
+        var userLocation = new mapboxgl.GeolocateControl({
             positionOptions: {
                 enableHighAccuracy: true
             },
             trackUserLocation: true
-        }));
+        })
+        map.addControl(userLocation);
+        userLocation.on('geolocate', function (e) {
+            var lon = e.coords.longitude;
+            var lat = e.coords.latitude
+            var position = [lon, lat];
+            // console.log(position);
+            mapDirections.setOrigin(position)
 
-        // Add zoom and rotation controls to the map.
-        map.addControl(new mapboxgl.NavigationControl());
-
-        // Display driving directions
-        map.addControl(new MapboxDirections({
-            accessToken: mapboxgl.accessToken
-        }), 'top-left');
-
-        // Place the geocoder input outside the map
-        var geocoder = new MapboxGeocoder({
-            accessToken: mapboxgl.accessToken,
-            mapboxgl: mapboxgl
         });
 
-        document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
 
 
 
-        var geojson = {
-            "type": "FeatureCollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "message": "Foo",
-                        "iconSize": [40, 40]
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -93.324462890625,
-                            44.024695711685304
-                        ]
-                    }
-                },
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "message": "Bar",
-                        "iconSize": [40, 40]
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -93.2158203125,
-                            44.97189158092897
-                        ]
-                    }
-                },
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "message": "Baz",
-                        "iconSize": [40, 40]
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -93.29223632812499,
-                            44.28151823530889
-                        ]
-                    }
-                }
-            ]
-        };
+        //Directions navigation
+        var mapDirections = new MapboxDirections({
+            accessToken: mapboxgl.accessToken
+        })
+        map.addControl(mapDirections, 'top-left');
 
-        // add markers to map
+        // mapDirections.setOrigin([-93.256, 44.985])
+        // mapDirections.setDestination([-93.259, 44.989])
+
+
+
+
+
+
+        // Add custom markers to map
         geojson.features.forEach(function (marker) {
             // create a DOM element for the marker
             var el = document.createElement('div');
@@ -278,13 +249,20 @@
             el.style.width = marker.properties.iconSize[0] + 'px';
             el.style.height = marker.properties.iconSize[1] + 'px';
 
-            // el.addEventListener('click', function () {
-            //     window.alert(marker.properties.message);
-            // });
+            el.addEventListener('click', function () {
+                //window.alert(marker.geometry.coordinates + marker.properties.message);
+                mapDirections.setDestination(marker.geometry.coordinates);
+
+            });
+            // This is the message popup
+            var popup = new mapboxgl.Popup({ offset: 25 })
+                .setText(marker.properties.message);
+
 
             // add marker to map
             new mapboxgl.Marker(el)
                 .setLngLat(marker.geometry.coordinates)
+                .setPopup(popup)
                 .addTo(map);
         });
 
