@@ -21,6 +21,9 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+
     <style>
         /* Display a map */
         body {
@@ -33,7 +36,7 @@
             /* top: 0; */
             /* bottom: 0; */
             width: 100%;
-            height: 600px;
+            height: 650px;
         }
 
         /* Display custom marker */
@@ -84,6 +87,36 @@
         svg.mapboxgl-ctrl-geocoder--icon {
             display: none;
         }
+
+        #clearAll {
+            color: #fff;
+            background-color: #555;
+            padding: 8px;
+            margin: 10px;
+            position: absolute;
+            right: 50px;
+            top: 50px;
+            border-radius: 0.5em;
+            border-bottom: 2px #222 solid;
+            cursor: pointer;
+        }
+
+        fieldset.scheduler-border {
+            border: 1px groove #ddd !important;
+            padding: 0 1.4em 1.4em 1.4em !important;
+            margin: 0 0 1.5em 0 !important;
+            -webkit-box-shadow: 0px 0px 0px 0px #000;
+            box-shadow: 0px 0px 0px 0px #000;
+        }
+
+        legend.scheduler-border {
+            font-size: 1.2em !important;
+            font-weight: bold !important;
+            text-align: left !important;
+            width: auto;
+            padding: 0 10px;
+            border-bottom: none;
+        }
     </style>
 
 </head>
@@ -97,7 +130,7 @@
         type='text/css' />
 
 
-
+    <!-- Navbar bootstrap -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="/">Google Books Search</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -123,11 +156,32 @@
         </div>
     </nav>
 
+    <!-- Map -->
     <div id='map'></div>
+
+    <!-- Clear all button -->
+    <div id='clearAll' class='button'>Clear all</div>
 
     <!-- Get coordinates of the mouse pointer -->
     <pre id='info'></pre>
 
+    <!-- Radio button for select feature -->
+    <div class="jumbotron">
+        <form action="#" method="post" class="featureForm" id="featureForm">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Pick feature for Map</legend>
+
+                <p>Select feature:&nbsp;
+                    <label><input type="radio" id="feature" name="feature" value="water" /> Water fountain</label>
+                    <label><input type="radio" id="feature" name="feature" value="bathroom" /> Bathroom</label>
+                    <label><input type="radio" id="feature" name="feature" value="bicycle" /> Bicycle rack</label>
+
+                </p>
+
+
+            </fieldset>
+        </form>
+    </div>
 
     <script>
         mapboxgl.accessToken = 'pk.eyJ1IjoiZGF2aWR2bzE5OTAiLCJhIjoiY2p4MmsyOXJsMDAxYTQ4cGg3cHMwcTZkMCJ9.mHHhKy1QIfmGF_TC88vSUg';
@@ -138,54 +192,155 @@
             zoom: 13
         });
 
+        var clearAll = document.getElementById('clearAll');
+        clearAll.onclick = function () {
+            location.reload();
 
-        var geojson = {
-            "type": "FeatureCollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "message": "Foo",
-                        "iconSize": [60, 60]
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -93.258462890625,
-                            44.986695711685304
-                        ]
-                    }
-                },
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "message": "Bar",
-                        "iconSize": [50, 50]
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -93.2588203125,
-                            44.98689158092897
-                        ]
-                    }
-                },
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "message": "Baz",
-                        "iconSize": [40, 40]
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -93.25823632812499,
-                            44.98651823530889
-                        ]
-                    }
+            // map = new mapboxgl.Map({
+            //     container: 'map',
+            //     style: 'mapbox://styles/mapbox/streets-v11',
+            //     center: [-93.258133, 44.986656],
+            //     zoom: 13
+            // });
+
+        }
+
+        /*
+         var geojson = {
+         "type": "FeatureCollection",
+         "features": [
+         {
+         "type": "Feature",
+         "properties": {
+         "message": "Foo",
+         "iconSize": [60, 60]
+         },
+         "geometry": {
+         "type": "Point",
+         "coordinates": [
+         -93.258462890625,
+         44.986695711685304
+         ]
+         }
+         }
+         ]
+         };
+         */
+
+
+        var waterCoor = [];
+        var bathroomCoor = [];
+        var bicycleCoor = [];
+        var waterMessage = [];
+        var bathroomMessage = [];
+        var bicycleMessage = [];
+        $.getJSON("/api/locations", function (data) {
+            // console.log(data)
+
+            for (var i = 0; i < data.length; i++) {
+
+                var coor = [data[i].longitude, data[i].latitude]
+                if (data[i].feature === "water") {
+                    waterCoor.push(coor);
+                    waterMessage.push(data[i].message)
                 }
-            ]
+                else if (data[i].feature === "bathroom") {
+                    bathroomCoor.push(coor)
+                    bathroomMessage.push(data[i].message)
+                }
+                else if (data[i].feature === "bicycle") {
+                    bicycleCoor.push(coor)
+                    bicycleMessage.push(data[i].message)
+                }
+            }
+            //  console.log(waterCoor)
+            //  console.log(bathroomCoor)
+            //  console.log(bicycleCoor)
+            //  console.log(waterMessage)
+            //  console.log(bathroomMessage)
+            //  console.log(bicycleMessage)
+        })
+
+
+
+
+
+
+
+
+        // var waterCoor = [[-93.258, 44.986], [-93.258, 44.996], [-93.275, 44.986], [-93.278, 44.984], [-93.27333, 44.986], [-93.2744, 44.986], [-93.2756, 44.986], [-93.278, 44.988]]
+
+        // var bathroomCoor = [[-93.2181, 44.9861], [-93.2181, 44.9961], [-93.2156, 44.9866], [-93.2186, 44.9846], [-93.213336, 44.9866], [-93.2144, 44.9866], [-93.2156, 44.9866], [-93.2186, 44.9886]]
+
+        // var bicycleCoor = [[-93.25816, 44.98616], [-93.25816, 44.99616], [-93.27566, 44.98666], [-93.27866, 44.98466], [-93.2733366, 44.98666], [-93.27446, 44.98666], [-93.27566, 44.98666], [-93.27866, 44.98866]]
+
+        // var message = ["fi", "foo", "fa", "fee", "fuu", "fin", "faa", "fii"]
+        var features = [];
+
+        function createGeojson(arr, mess) {
+            for (var i = 0; i < arr.length; i++) {
+
+                features.push(
+                    {
+                        "type": "Feature",
+                        "properties": {
+                            "message": mess[i],
+                            "iconSize": [50, 50]
+                        },
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": arr[i]
+                        }
+                    }
+
+                )
+
+            }
         };
+
+
+        // get list of radio buttons with name 'feature'
+        var sz = document.forms['featureForm'].elements['feature'];
+
+        // loop through list
+        for (var i = 0, len = sz.length; i < len; i++) {
+            sz[i].onclick = function () {
+                //location.reload();  
+                //map.resize()
+                //console.log(this.value)
+                //new mapboxgl.Marker(el).addTo(map)
+                //mapboxMap.removeAnnotations();
+
+                if (this.value === "water") {
+                    features = [];
+                    createGeojson(waterCoor, waterMessage);
+                    //console.log(features)
+                    makeMarkers(features, this.value)
+                } else if (this.value === "bathroom") {
+                    features = [];
+                    createGeojson(bathroomCoor, bathroomMessage);
+                    //console.log(features)
+                    makeMarkers(features, this.value)
+                } else if (this.value === "bicycle") {
+                    features = [];
+                    createGeojson(bicycleCoor, bicycleMessage);
+                    //console.log(features)
+                    makeMarkers(features, this.value)
+                }
+            }
+        };
+
+        //console.log(features)
+
+        // var geojson = {
+        // "type": "FeatureCollection",
+        // "features": features
+
+        // };
+
+
+        //console.log(geojson)
+
 
 
         // Get coordinates of the mouse pointer
@@ -225,7 +380,6 @@
 
 
 
-
         //Directions navigation
         var mapDirections = new MapboxDirections({
             accessToken: mapboxgl.accessToken
@@ -238,33 +392,42 @@
 
 
 
+        function makeMarkers(features, type) {
+            //console.log(type)
 
 
-        // Add custom markers to map
-        geojson.features.forEach(function (marker) {
-            // create a DOM element for the marker
-            var el = document.createElement('div');
-            el.className = 'marker';
-            el.style.backgroundImage = 'url(https://placekitten.com/g/' + marker.properties.iconSize.join('/') + '/)';
-            el.style.width = marker.properties.iconSize[0] + 'px';
-            el.style.height = marker.properties.iconSize[1] + 'px';
+            var geojson = {
+                "type": "FeatureCollection",
+                "features": features
 
-            el.addEventListener('click', function () {
-                //window.alert(marker.geometry.coordinates + marker.properties.message);
-                mapDirections.setDestination(marker.geometry.coordinates);
+            };
 
-            });
-            // This is the message popup
-            var popup = new mapboxgl.Popup({ offset: 25 })
-                .setText(marker.properties.message);
+            // Add custom markers to map
+            geojson.features.forEach(function (marker) {
+                // create a DOM element for the marker
+                var el = document.createElement('div');
+                el.className = 'marker';
+                el.style.backgroundImage = 'url(https://placekitten.com/g/' + marker.properties.iconSize.join('/') + '/)';
+                el.style.width = marker.properties.iconSize[0] + 'px';
+                el.style.height = marker.properties.iconSize[1] + 'px';
+
+                el.addEventListener('click', function () {
+                    //window.alert(marker.geometry.coordinates + marker.properties.message);
+                    mapDirections.setDestination(marker.geometry.coordinates);
+
+                });
+                // This is the message popup
+                var popup = new mapboxgl.Popup({ offset: 25 })
+                    .setText(marker.properties.message);
 
 
-            // add marker to map
-            new mapboxgl.Marker(el)
-                .setLngLat(marker.geometry.coordinates)
-                .setPopup(popup)
-                .addTo(map);
-        });
+                // add marker to map
+                new mapboxgl.Marker(el)
+                    .setLngLat(marker.geometry.coordinates)
+                    .setPopup(popup)
+                    .addTo(map);
+            })
+        };
 
     </script>
 

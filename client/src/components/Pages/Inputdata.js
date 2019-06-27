@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Jumbotron from "../Jumbotron";
 import API from "../../utils/API";
-import { Input, TextArea, FormBtn } from "../Form";
+import { Input, TextArea, FormBtn, SelectTag } from "../Form";
 // import { BookList, BookListItem } from "../BookList";
 import { Container, Row, Col } from "../Grid";
 import { List, ListItem } from "../List";
@@ -13,8 +13,8 @@ class Inputdata extends Component {
         locations: [],
         locationSearch: "",
         name: "",
-        message: ""
-
+        message: "",
+        feature: ""
     };
 
     componentDidMount() {
@@ -25,7 +25,7 @@ class Inputdata extends Component {
         API.getLocations()
             .then(res =>
                 // console.log(res.data)
-                this.setState({ locations: res.data, name: "", locationSearch: "", message: "" })
+                this.setState({ locations: res.data, name: "", locationSearch: "", message: "", feature: "" })
             )
             .catch(err => console.log(err));
     };
@@ -42,15 +42,29 @@ class Inputdata extends Component {
     handleFormSubmit = event => {
         // When the form is submitted, prevent its default behavior, get update state
         event.preventDefault();
+        //console.log(this.state.feature)
+        //console.log(this.state.name)
+        this.loadLocation();
         if (this.state.name && this.state.locationSearch) {
-            API.searchLocations(this.state.locationSearch, {
+            API.searchLocations(
+                this.state.locationSearch, {
                 name: this.state.name,
-                message: this.state.message
+                message: this.state.message,
+                feature: this.state.feature
             })
+                .then(res =>{
+                    this.loadLocation();
+                })
                 .catch(err => console.log(err))
         }
         this.loadLocation();
     };
+
+    deleteLocation = id => {
+        API.deleteLocation(id)
+          .then(res => this.loadLocation())
+          .catch(err => console.log(err));
+      };
 
     render() {
         return (
@@ -78,6 +92,12 @@ class Inputdata extends Component {
                                     value={this.state.message}
                                     onChange={this.handleInputChange}
                                     placeholder="Message"
+                                />
+
+                                <SelectTag
+                                    name="feature"
+                                    value={this.state.feature}
+                                    onChange={this.handleInputChange}
                                 />
 
                                 <FormBtn

@@ -26,7 +26,12 @@ var LocationSchema = new Schema({
   },
   message: {
     type: String
+  },
+  feature: {
+    type: String,
+    required: true
   }
+  
   
 });
 

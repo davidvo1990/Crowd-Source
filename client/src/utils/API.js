@@ -31,4 +31,7 @@ export default {
   getLocations: function() {
     return axios.get("/api/locations/");
   },
+  deleteLocation: function(id) {
+    return axios.delete("/api/locations/" + id);
+  },
 };

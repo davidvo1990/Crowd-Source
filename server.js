@@ -181,15 +181,15 @@ app.post("/searchlocations/:query", function (req, res) {
     // console.log(response.data.features[0])
     // console.log(response.data.features[0].place_name)
     // console.log(response.data.features[0].geometry.coordinates)\
-    // console.log(body)
+    //console.log(body)
     const result = {};
     result.address = response.data.features[0].place_name;
     result.longitude = response.data.features[0].geometry.coordinates[0];
     result.latitude = response.data.features[0].geometry.coordinates[1];
     result.name = body.name;
     result.message = body.message;
-
-      // console.log(result)
+    result.feature = body.feature;
+    // console.log(result)
 
       db.Location.create(result)
         .then(function (dbLocation) {
@@ -205,7 +205,14 @@ app.post("/searchlocations/:query", function (req, res) {
   })
 });
 
-
+app.delete("/api/locations/:id", function (req, res) {
+  // console.log(req.params.id)
+  db.Location
+  .findById({ _id: req.params.id })
+  .then(dbModel => dbModel.remove())
+  .then(dbModel => res.json(dbModel))
+  .catch(err => res.status(422).json(err));
+});
 
 
 app.get("*", function (req, res) {
