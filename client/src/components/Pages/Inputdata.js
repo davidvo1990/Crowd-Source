@@ -44,7 +44,9 @@ class Inputdata extends Component {
         event.preventDefault();
         //console.log(this.state.feature)
         //console.log(this.state.name)
-        this.loadLocation();
+        setTimeout(() =>
+        this.loadLocation()
+        ,3000);
         if (this.state.name && this.state.locationSearch) {
             API.searchLocations(
                 this.state.locationSearch, {
@@ -110,13 +112,14 @@ class Inputdata extends Component {
                             </form>
                         </Col>
 
-                        <Col size="md-6 sm-12">
+                        <Col size="md-12 sm-12">
                             <h1>Location Data List</h1>
                             {this.state.locations.length ? (
                                 <List>
                                     {this.state.locations.map(location => (
                                         <ListItem key={location._id}>
                                             <DeleteBtn onClick={() => this.deleteLocation(location._id)} />
+                                            <h3>{location.feature === "water" ? "Water" : location.feature === "bathroom" ? "Bathroom" : "Bicycle Rack"}</h3>
                                             <p>
                                                 <span>
                                                     <strong>{location.address}</strong> add by <strong>{location.name}</strong>
