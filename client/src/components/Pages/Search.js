@@ -1,27 +1,26 @@
 import React, { Component } from "react";
 import Jumbotron from "../Jumbotron";
-// import Nav from "../Nav";
 import Input from "../Input";
 import Button from "../Button";
 import API from "../../utils/API";
-import { BookList, BookListItem } from "../BookList";
+import { List, ListItem } from "../ListItem";
 import { Container, Row, Col } from "../Grid";
 
 class Search extends Component {
     state = {
-        books: [],
-        bookSearch: "",
+        venues: [],
+        locationSearch: "",
         message:""
     };
 
     componentDidMount() {
-        this.loadBooks();
+        this.loadSearch();
     }
 
-    loadBooks = () => {
-        API.getBooks()
+    loadSearch = () => {
+        API.getLocationsSearch()
             .then(res => {
-                this.setState({ books: res.data })
+                this.setState({ venues: res.data })
             })
             .catch(err => console.log(err));
     };
@@ -35,29 +34,19 @@ class Search extends Component {
         });
     };
 
-    // handleFormSubmit = event => {
-    //   event.preventDefault();
-    //   API.getBooksAPI(this.state.bookSearch)
-    //     .then(res => {
-    //       // console.log(res.data.items)
-    //       this.setState({ books: res.data.items })
-    //     })
-    //     .catch(err => console.log(err));
-    // };
-
     handleFormSubmit = event => {
         // When the form is submitted, prevent its default behavior, get update state
         event.preventDefault();
 
-        API.searchBooks(this.state.bookSearch).catch(err => console.log(err))
+        API.searchVenues(this.state.locationSearch).catch(err => console.log(err))
 
         setTimeout(() =>
-            API.getBooks()
+            API.getLocationsSearch()
                 .then(res => {
                     // console.log(res.data.items)
-                    // console.log(this.state.bookSearch)
+                    // console.log(this.state.locationSearch)
                     // console.log(res.data)
-                    this.setState({ books: res.data })
+                    this.setState({ venues: res.data })
                 })
                 .catch(err => console.log(err))
             , 3000);
@@ -65,10 +54,9 @@ class Search extends Component {
 
     handleSaved = id => {
         // console.log(id)
-        // alert("Saved book!")
-        // window.location = "/";
-        this.loadBooks();
-        API.savedBook(id)
+        // alert("Saved venue!")
+        this.loadSearch();
+        API.savedVenue(id)
             .then(res => {
                 // console.log(res)
             })
@@ -78,7 +66,6 @@ class Search extends Component {
     render() {
         return (
             <div>
-                {/* <Nav /> */}
                 <Jumbotron />
                 <Container>
                     <Row>
@@ -88,10 +75,10 @@ class Search extends Component {
                                     <Row>
                                         <Col size="xs-9 sm-10">
                                             <Input
-                                                name="bookSearch"
-                                                value={this.state.bookSearch}
+                                                name="locationSearch"
+                                                value={this.state.locationSearch}
                                                 onChange={this.handleInputChange}
-                                                placeholder="Search for Book"
+                                                placeholder="Search for Venue"
                                             />
                                         </Col>
                                         <Col size="xs-3 sm-2">
@@ -110,33 +97,26 @@ class Search extends Component {
                     </Row>
                     <Row>
                         <Col size="xs-12">
-                            {!this.state.books.length ? (
-                                <h1 className="text-center">No Book Display</h1>
+                            {!this.state.venues.length ? (
+                                <h1 className="text-center">No Search Display</h1>
                             ) : (
-                                    <BookList>
-                                        {this.state.books.map(book => {
-                                            if (book.saved === false) {
+                                    <List>
+                                        {this.state.venues.map(venue => {
+                                            if (venue.saved === false) {
                                                 return (
-                                                    < BookListItem
-                                                        key={book._id}
-                                                        title={book.title}
-                                                        link={book.link}
-                                                        authors={book.authors}
-                                                        description={book.description}
-                                                        image={book.image}
-
-                                                        // key={book.volumeInfo.title}
-                                                        // title = {book.volumeInfo.title}
-                                                        // link={book.volumeInfo.previewLink}
-                                                        // authors={book.volumeInfo.authors}
-                                                        // description={book.volumeInfo.description}
-                                                        // image={book.volumeInfo.imageLinks.smallThumbnail}
-                                                        onClick={() => this.handleSaved(book._id)}
+                                                    < ListItem
+                                                        key={venue._id}
+                                                        name={venue.name}
+                                                        address={venue.address}
+                                                        category={venue.category}
+                                                        longitude={venue.longitude}
+                                                        latitude={venue.latitude}
+                                                        onClick={() => this.handleSaved(venue._id)}
                                                     />
                                                 )
                                             };
                                         })}
-                                    </BookList>
+                                    </List>
 
                                 )}
                         </Col>

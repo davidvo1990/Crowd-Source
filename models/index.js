@@ -1,4 +1,4 @@
 module.exports = {
-    Book: require("./Book"),
+    Search: require("./Search"),
     Location: require("./Location")
   };

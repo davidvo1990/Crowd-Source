@@ -1,0 +1,15 @@
+/* .modal-backdrop {   
+    display: none;    
+} */
+#notbold{
+    font-weight:normal;
+    font-size: 17px;
+    font-family: 'Times New Roman', Times, serif
+}
+.showMap{
+    cursor: pointer;
+    transition: transform .5s;
+}
+.showMap:hover{
+    transform: scale(1.05)
+}

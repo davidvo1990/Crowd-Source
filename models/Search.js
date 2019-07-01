@@ -5,23 +5,23 @@ var Schema = mongoose.Schema;
 
 // Using the Schema constructor, create a new UserSchema object
 // This is similar to a Sequelize model
-var BookSchema = new Schema({
+var SearchSchema = new Schema({
   // `title` is required and of type String
-  title: {
+  name: {
     type: String,
     required: true
   },
   // `link` is required and of type String
-  authors: {
+  address: {
     type: String
   },
-  description: {
+  category: {
     type: String
   },
-  image: {
+  longitude: {
     type: String
   },
-  link: {
+  latitude: {
     type: String
   },
   saved: {
@@ -31,7 +31,7 @@ var BookSchema = new Schema({
 });
 
 // This creates our model from the above schema, using mongoose's model method
-var Book = mongoose.model("Book", BookSchema);
+var Search = mongoose.model("Search", SearchSchema);
 
 // Export the Article model
-module.exports = Book;
+module.exports = Search;

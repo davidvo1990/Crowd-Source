@@ -81,25 +81,32 @@ if (process.env.NODE_ENV === "production") {
 app.post("/search/:query", function (req, res) {
   const query = req.params.query;
   // console.log(req.params.query)
-  const url = `https://www.googleapis.com/books/v1/volumes?q=${query}`;
+  const access_token = process.env.access_token
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${access_token}`
   axios.get(url).then(function (response) {
-    // console.log(response.data.items[0])
+    // console.log(response.data.features)
+    // console.log(response.data.features[0].place_name)
+    // console.log(response.data.features[0].geometry.coordinates)
+    // console.log(response.data.features[0].text)
+    // console.log(response.data.features[0].properties.category)
     const result = {};
-    for (let i = 0; i < response.data.items.length; i++) {
-      result.title = response.data.items[i].volumeInfo.title
-      result.authors = response.data.items[i].volumeInfo.authors.join(", ")
-      result.description = response.data.items[i].volumeInfo.description
-      result.image = response.data.items[i].volumeInfo.imageLinks.smallThumbnail
-      result.link = response.data.items[i].volumeInfo.previewLink
-      // console.log(result)
+    for (let i = 0; i < response.data.features.length; i++) {
+      result.name = response.data.features[i].text;
+      result.address = response.data.features[i].place_name;
+      result.category = response.data.features[i].properties.category;
+      result.longitude = response.data.features[i].geometry.coordinates[0];
+      result.latitude = response.data.features[i].geometry.coordinates[1];
+  
+      console.log(result)
       //delete database for new search
-      db.Book.deleteMany({ saved: false }, function (err) {
+      db.Search.deleteMany({ saved: false }, function (err) {
         console.log(err)
       });
-      db.Book.create(result)
-        .then(function (dbArticle) {
+
+      db.Search.create(result)
+        .then(function (data) {
           // View the added result in the console
-          // console.log(dbArticle);
+          // console.log(data);
         })
         .catch(function (err) {
           // If an error occurred, log it
@@ -110,12 +117,12 @@ app.post("/search/:query", function (req, res) {
   })
 });
 
-app.get("/api/books", function (req, res) {
+app.get("/api/searchs", function (req, res) {
   // Grab every document in the Articles collection
-  db.Book.find({})
-    .then(function (dbBook) {
+  db.Search.find({})
+    .then(function (dbSearch) {
       // If we were able to successfully find Articles, send them back to the client
-      res.json(dbBook);
+      res.json(dbSearch);
     })
     .catch(function (err) {
       // If an error occurred, send it to the client
@@ -123,16 +130,16 @@ app.get("/api/books", function (req, res) {
     });
 });
 
-app.post("/api/books", function (req, res) {
-  db.Book
+app.post("/api/searchs", function (req, res) {
+  db.Search
     .create(req.body)
     .then(dbModel => res.json(dbModel))
     .catch(err => res.status(422).json(err));
 });
 
-app.post("/api/books/:id", function (req, res) {
+app.post("/api/searchs/:id", function (req, res) {
   // console.log(req.params.id)
-  db.Book.findOneAndUpdate({ _id: req.params.id }, {saved: true})
+  db.Search.findOneAndUpdate({ _id: req.params.id }, {saved: true})
     .exec(function(err, doc) {
       // Log any errors
       if (err) {
@@ -145,9 +152,9 @@ app.post("/api/books/:id", function (req, res) {
     });
   });
 
-app.delete("/api/books/:id", function (req, res) {
+app.delete("/api/searchs/:id", function (req, res) {
   // console.log(req.params.id)
-  db.Book
+  db.Search
   .findById({ _id: req.params.id })
   .then(dbModel => dbModel.remove())
   .then(dbModel => res.json(dbModel))
@@ -169,7 +176,6 @@ app.get("/api/locations", function (req, res) {
 });
 
 
-
 app.post("/searchlocations/:query", function (req, res) {
   const query = req.params.query;
   const body = req.body;
@@ -180,7 +186,7 @@ app.post("/searchlocations/:query", function (req, res) {
     // console.log(response.data.features)
     // console.log(response.data.features[0])
     // console.log(response.data.features[0].place_name)
-    // console.log(response.data.features[0].geometry.coordinates)\
+    // console.log(response.data.features[0].geometry.coordinates)
     //console.log(body)
     const result = {};
     result.address = response.data.features[0].place_name;

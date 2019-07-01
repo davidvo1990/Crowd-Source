@@ -2,24 +2,20 @@ import React, { Component } from "react";
 import Jumbotron from "../Jumbotron";
 import API from "../../utils/API";
 import { Input, TextArea, FormBtn, SelectTag } from "../Form";
-// import { BookList, BookListItem } from "../BookList";
 import { Container, Row, Col } from "../Grid";
 import { List, ListItem } from "../List";
 import DeleteBtn from "../DeleteBtn";
-import Modal from "../Modal";
-import Button from "../Button"
-// import { Button } from 'react-bootstrap';
+import "./style.css";
+import { Button, Modal } from 'react-bootstrap';
+import ReactMapboxGl, { Layer, Feature, Marker } from "react-mapbox-gl";
+// import dotenv from 'dotenv'
 
 
-// document.getElementsByClassName("card-body").addEventListener("click", function(){
-// document.getElementById("results-modal").modal("toggle")
-// });
-
-// $(document).on("click", ".card-body", function () {
-// $("#results-modal").modal("toggle");
-// })
 
 
+const Map = ReactMapboxGl({
+    accessToken: "pk.eyJ1IjoiZGF2aWR2bzE5OTAiLCJhIjoiY2p4MmsyOXJsMDAxYTQ4cGg3cHMwcTZkMCJ9.mHHhKy1QIfmGF_TC88vSUg"
+});
 
 class Inputdata extends Component {
     state = {
@@ -29,7 +25,12 @@ class Inputdata extends Component {
         message: "",
         feature: "",
         show: false,
+        addressDB: "",
+        nameDB: "",
+        longitudeDB: "",
+        latitudeDB: "",
     };
+
 
     handleShow = this.handleShow.bind(this);
     handleClose = this.handleClose.bind(this);
@@ -38,11 +39,9 @@ class Inputdata extends Component {
         this.setState({ show: false });
     }
 
-    handleShow() {
-        console.log("hi")
-        this.setState({ show: true });
+    handleShow(address, name, longitude, latitude) {
+        this.setState({ show: true, addressDB: address, nameDB: name, longitudeDB: longitude, latitudeDB: latitude });
     }
-
 
 
     componentDidMount() {
@@ -96,11 +95,6 @@ class Inputdata extends Component {
             .catch(err => console.log(err));
     };
 
-    modalLocation = id => {
-        console.log(id)
-        console.log("hello")
-    };
-
     render() {
         return (
             <div>
@@ -148,22 +142,24 @@ class Inputdata extends Component {
                         <Col size="md-12 sm-12">
                             <h1>Location Data List</h1>
                             {this.state.locations.length ? (
-                                <List>
+                                <List >
                                     {this.state.locations.map(location => (
-                                        <ListItem key={location._id} >
-                                            <DeleteBtn onClick={() => this.deleteLocation(location._id)} />
-                                            <h3
-                                                // onClick={() => this.modalLocation(location._id)}
-                                                onClick={this.handleShow}
-                                            >Feature: {location.feature === "water" ? "Water" : location.feature === "bathroom" ? "Bathroom" : "Bicycle Rack"}</h3>
-                                            <p>
-                                                <span>
-                                                    <strong>{location.address}</strong> add by <strong>{location.name}</strong>
-                                                </span>
-                                            </p>
-                                            <p><span><strong>Longitude:</strong> {location.longitude}, <strong>Latitude:</strong> {location.latitude}</span></p>
-                                            <p><strong>Message:</strong> {location.message}</p>
+                                        <ListItem key={location._id}>
+                                            <div>
+                                                <DeleteBtn onClick={() => this.deleteLocation(location._id)} />
+                                                <h3 className="showMap"
+                                                onClick={() => this.handleShow(location.address, location.name, location.longitude, location.latitude)}
+                                                >{location.feature === "water" ? "Water" : location.feature === "bathroom" ? "Bathroom" : "Bicycle Rack"}</h3>
+                                                <p>
+                                                    <span>
+                                                        <strong>{location.address}</strong> add by <strong>{location.name}</strong>
+                                                    </span>
+                                                </p>
+                                                <p><span><strong>Longitude:</strong> {location.longitude}, <strong>Latitude:</strong> {location.latitude}</span></p>
+                                                <p><strong>Message:</strong> {location.message}</p>
+                                            </div>
                                         </ListItem>
+
 
                                     ))}
                                 </List>
@@ -174,22 +170,53 @@ class Inputdata extends Component {
                     </Row>
 
 
-                    <Modal show={this.state.show} onHide={this.handleClose}>
+                    <Modal
+                        show={this.state.show}
+                        onHide={this.handleClose}
+                        dialogClassName="modal-90w"
+                        aria-labelledby="modal-styling-title"
+                        size="lg"
+                    >
                         <Modal.Header closeButton>
-                            <Modal.Title>Modal heading</Modal.Title>
+                            <Modal.Title id="modal-styling-title">
+                                {this.state.addressDB}  <span id="notbold">by  </span>{this.state.nameDB}
+                            </Modal.Title>
                         </Modal.Header>
-                        <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
+                        <Modal.Body>
+
+                            
+                            <Map
+                                style="mapbox://styles/mapbox/streets-v11"
+                                zoom={[13]}
+                                center={[this.state.longitudeDB, this.state.latitudeDB]}
+                                containerStyle={{
+                                    width: '100%',
+                                    height: '500px',
+                                }}
+                            >
+                                <Marker
+                                    coordinates={[this.state.longitudeDB, this.state.latitudeDB]}
+                                    anchor="bottom">
+                                    <img src={"./assets/img/marker.png"} />
+                                </Marker>
+                                <Layer
+                                    type="symbol"
+                                    layout={{ "icon-image": "marker-15" }}>
+                                    <Feature
+                                        coordinates={[this.state.longitudeDB, this.state.latitudeDB]}
+                                    />
+                                </Layer>
+                            </Map>
+                            
+
+                        </Modal.Body>
                         <Modal.Footer>
                             <Button variant="secondary" onClick={this.handleClose}>
                                 Close
-            </Button>
-                            <Button variant="primary" onClick={this.handleClose}>
-                                Save Changes
-            </Button>
+                                </Button>
+
                         </Modal.Footer>
                     </Modal>
-
-
 
                 </Container>
             </div>

@@ -1,28 +1,23 @@
 import axios from "axios";
 
-// The getBooks method retrieves book from the server
+// The method retrieves search from the server
 // It accepts a "query" or term to search the recipe api for
 export default {
-  // getRecipes: function(query) {
-  //   return axios.get("/api/recipes", { params: { q: query } });
-  // },
-  getBooks:function(){
-    // return axios.get("https://www.googleapis.com/books/v1/volumes?q=title:"+query);
-    return axios.get("/api/books/"); 
+ 
+  getLocationsSearch:function(){
+    return axios.get("/api/searchs/"); 
   },
-  searchBooks:function(query){
-    // return axios.get(`/api/search?q=${query}`)
-    // return axios.get("/api/search?q=" +query);
+  searchVenues:function(query){
     return axios.post("/search/"+query);
   },
-  getBooksAPI:function(query){
-    return axios.get("https://www.googleapis.com/books/v1/volumes?q=title:"+query);
+  // getBooksAPI:function(query){
+  //   return axios.get("https://www.googleapis.com/books/v1/volumes?q=title:"+query);
+  // },
+  savedVenue:function(id){
+    return axios.post("/api/searchs/"+id);
   },
-  savedBook:function(id){
-    return axios.post("/api/books/"+id);
-  },
-  deleteBook: function(id) {
-    return axios.delete("/api/books/" + id);
+  deleteVenue: function(id) {
+    return axios.delete("/api/searchs/" + id);
   },
 
   searchLocations:function(query, user){
