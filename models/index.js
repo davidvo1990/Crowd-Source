@@ -1,4 +1,5 @@
 module.exports = {
     Search: require("./Search"),
-    Location: require("./Location")
+    Location: require("./Location"),
+    User: require("./User")
   };

@@ -3,6 +3,7 @@ import Jumbotron from "../Jumbotron";
 import API from "../../utils/API";
 import { List, ListItem } from "../SavedListItem";
 import { Container, Row, Col } from "../Grid";
+import Nav from "../Nav";
 
 import { Button, Modal } from 'react-bootstrap';
 import ReactMapboxGl, { Layer, Feature, Marker } from "react-mapbox-gl";
@@ -55,6 +56,7 @@ class Search extends Component {
     render() {
         return (
             <div>
+                <Nav />
                 <Jumbotron />
                 <Container>
                     <Row>

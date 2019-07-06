@@ -3,7 +3,7 @@
 
 <head>
     <meta charset='utf-8' />
-    <title>Display driving directions</title>
+    <title>Mapa</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css' rel='stylesheet' />
@@ -143,29 +143,32 @@
 
     <!-- Navbar bootstrap -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/">MAPA</a>
+        <a class="navbar-brand" href="/home">MAPA</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
         </button>
-
+  
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/saved">Favorite</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/inputdata">Input Data</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="map.html">Map</a>
-                </li>
-            </ul>
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/saved">Favorite</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/inputdata">Input Data</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="map.html">Map</a>
+            </li>
+           <li class="nav-item">
+              <a class="nav-link" href="/">SignOut</a>
+            </li>
+          </ul>
         </div>
-    </nav>
+      </nav>
 
     <!-- Map -->
     <div id='map'></div>

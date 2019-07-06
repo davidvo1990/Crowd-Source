@@ -3,16 +3,39 @@ const path = require("path");
 require('dotenv').config()
 
 ////////////////////////////
-var logger = require("morgan");
+//var logger = require("morgan");
 var mongoose = require("mongoose");
 // Our scraping tools
 // Axios is a promised-based http library, similar to jQuery's Ajax method
 // It works on the client and on the server
 var axios = require("axios");
 // var cheerio = require("cheerio");
-
+const app = express();
 // Require all models
 // var db = require("./models");
+//STARTING LOGIN CODE HERE
+// Requiring necessary npm packages
+
+var session = require("express-session");
+// Requiring passport as we've configured it
+var passport = require("./config/passport");
+// Setting up port and requiring models for syncing
+// Creating express app and configuring middleware needed for authentication
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static("public"));
+
+
+// We need to use sessions to keep track of our user's login status
+  app.use(session({ secret: "keyboard cat", resave: true, saveUninitialized: true }));
+// i believe session makes the cookies in your browsser when you login and logout
+
+//app.use(session({ secret: "keyboard cat" }));
+ 
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/crowdsource";
 mongoose.connect(
@@ -25,18 +48,18 @@ mongoose.connect(
 
 
 const PORT = process.env.PORT || 3001;
-const app = express();
+
 
 //////////////////////////////
 // Configure middleware
 
 // Use morgan logger for logging requests
-app.use(logger("dev"));
+//app.use(logger("dev"));
 // Parse request body as JSON
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+//app.use(express.urlencoded({ extended: true }));
+//app.use(express.json());
 // Make public a static folder
-app.use(express.static("public"));
+//app.use(express.static("public"));
 
 var dbconnection = mongoose.connection;
 // Show any Mongoose errors
@@ -64,8 +87,8 @@ const db = require("./models");
 // const apiRoutes = require("./routes/apiRoutes");
 
 // Define middleware here
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+//app.use(express.urlencoded({ extended: true }));
+//app.use(express.json());
 // Serve up static assets (usually on heroku)
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
@@ -76,12 +99,15 @@ if (process.env.NODE_ENV === "production") {
 
 // Send every request to the React app
 // Define any API routes before this runs
+require("./routes/html-routes.js")(app);
+require("./routes/api-routes.js")(app);
 
 
 app.post("/search/:query", function (req, res) {
   const query = req.params.query;
   // console.log(req.params.query)
-  const access_token = process.env.access_token
+ // const access_token = process.env.access_token
+ const access_token = 'pk.eyJ1IjoiZGF2aWR2bzE5OTAiLCJhIjoiY2p4MmsyOXJsMDAxYTQ4cGg3cHMwcTZkMCJ9.mHHhKy1QIfmGF_TC88vSUg';
   const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${access_token}`
   axios.get(url).then(function (response) {
     // console.log(response.data.features)
@@ -177,10 +203,12 @@ app.get("/api/locations", function (req, res) {
 
 
 app.post("/searchlocations/:query", function (req, res) {
-  const query = req.params.query;
+  const query = req.params.query;    //query is what you type in chrome 
   const body = req.body;
   // console.log(req.params.query)
-  const access_token = process.env.access_token
+ // const access_token = process.env.access_token
+
+ const access_token = 'pk.eyJ1IjoiZGF2aWR2bzE5OTAiLCJhIjoiY2p4MmsyOXJsMDAxYTQ4cGg3cHMwcTZkMCJ9.mHHhKy1QIfmGF_TC88vSUg';
   const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${access_token}`
   axios.get(url).then(function (response) {
     // console.log(response.data.features)
@@ -197,6 +225,7 @@ app.post("/searchlocations/:query", function (req, res) {
     result.feature = body.feature;
     // console.log(result)
 
+    // add the results into the database 
       db.Location.create(result)
         .then(function (dbLocation) {
           // View the added result in the console
@@ -222,8 +251,41 @@ app.delete("/api/locations/:id", function (req, res) {
 
 
 app.get("*", function (req, res) {
-  res.sendFile(path.join(__dirname, "./client/build/index.html"));
+ res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
+
+/** 
+app.post("/api/signup", function(req, res) {         // these routes will match with the login and signup 
+  //        console.log('api-routes.js: ' + req.body.email);  
+   //       console.log('api-routes.js:  ' + req.body.password);
+     
+     //db.User.create(req.body) 
+      db.User.create({
+        email: req.body.email,
+        password: req.body.password
+      })
+     .then(function() {
+        res.redirect(307, "/api/login");     
+           //if whatever reason 307 error route go to that route
+      }).catch(function(err) {
+        console.log(err);
+        res.json(err);
+      
+        // res.status(422).json(err.errors[0].message);
+      });
+    });
+**/
+
+
+
+
+
+// Requiring our routes
+
+
+
+
+
 
 app.listen(PORT, function () {
   console.log(`🌎 ==> API server now on: http://localhost:${PORT}!`);

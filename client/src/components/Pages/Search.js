@@ -5,6 +5,7 @@ import Button from "../Button";
 import API from "../../utils/API";
 import { List, ListItem } from "../ListItem";
 import { Container, Row, Col } from "../Grid";
+import Nav from "../Nav";
 
 class Search extends Component {
     state = {
@@ -66,6 +67,7 @@ class Search extends Component {
     render() {
         return (
             <div>
+                <Nav />
                 <Jumbotron />
                 <Container>
                     <Row>
